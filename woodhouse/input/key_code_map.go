@@ -57,7 +57,7 @@ var keyCodeMap map[uint16]string = map[uint16]string{
 	54:  "R_SHIFT",
 	55:  "*",
 	56:  "L_ALT",
-	57:  "SPACE",
+	57:  " ", // SPACE
 	58:  "CAPS_LOCK",
 	59:  "F1",
 	60:  "F2",
