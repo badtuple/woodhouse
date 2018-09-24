@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"../input"
+	"github.com/atotto/clipboard"
+	"github.com/go-vgo/robotgo"
 )
 
 const (
@@ -62,6 +64,11 @@ func MatchInputToSnippet(inputChannel chan input.InputEvent) {
 			log.Printf("found snippet %+v", snippet)
 			symbolBuffer = symbolBuffer[:0]
 			leaderTriggered = false
+
+			err := pasteSnippet(*snippet)
+			if err != nil {
+				log.Printf("could not read or write to clipboard: %v", err.Error())
+			}
 		}
 	}
 }
@@ -92,4 +99,41 @@ SnippetLoop:
 		}
 	}
 	return nil
+}
+
+func pasteSnippet(s Snippet) error {
+	old, err := clipboard.ReadAll()
+	if err != nil {
+		// this may mean that there was nothing in the clipboard
+		log.Println("could not read from clipboard")
+	}
+
+	log.Printf("removed old string from keyboard: %v", old)
+
+	err = clipboard.WriteAll(s.Tmpl)
+	if err != nil {
+		return err
+	}
+
+	// delete typed symbol
+	for i := 0; i < len(s.Symbol)+1; i++ {
+		keyTap("backspace")
+	}
+
+	// paste snippet in
+	keyTap("v", "control")
+
+	// replace old clipboard
+	err = clipboard.WriteAll(old)
+	return err
+}
+
+// We're offloading this to the robotgo lib because it's
+// crossplatform and all ways I've seen to do this so far
+// are crazy gnarly.  We'll see if there's a way to bring
+// it inhouse later so that there aren't any blackbox
+// deps. Since we'd likely have to interface with C it may
+// be worth leaving as is.
+func keyTap(tapKey string, args ...interface{}) {
+	robotgo.KeyTap(tapKey, args...)
 }
