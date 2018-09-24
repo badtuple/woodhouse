@@ -1,0 +1,7 @@
+{
+	"leader": ",",
+	"snippets": [
+		{ "symbol": "tt", "template": "this is a test: {{ \"TESTING\"|lower }}" },
+		{ "symbol": "this is exactly 24 chars", "template": "is it visually noticeable if we delete each char from a long symbol?" }
+	]
+}

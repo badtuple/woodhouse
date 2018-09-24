@@ -16,13 +16,6 @@ const (
 )
 
 var (
-	// This key means we should start seeing whether
-	// what's typed matches a snippet.
-	//
-	// TODO: make it a config option, and handle more
-	// than one char
-	leader string = ","
-
 	// The actual buffer we use to keep track of key
 	// strokes to see if it matches a symbol.  Does
 	// not keep track of the leader.
@@ -32,7 +25,7 @@ var (
 func MatchInputToSnippet(inputChannel chan input.InputEvent) {
 	var leaderTriggered bool
 	for in := range inputChannel {
-		if in.KeyString() == leader {
+		if in.KeyString() == Cfg.Leader {
 			leaderTriggered = true
 			symbolBuffer = symbolBuffer[:0]
 			continue
@@ -61,7 +54,6 @@ func MatchInputToSnippet(inputChannel chan input.InputEvent) {
 				continue
 			}
 
-			log.Printf("found snippet %+v", snippet)
 			symbolBuffer = symbolBuffer[:0]
 			leaderTriggered = false
 
@@ -82,21 +74,21 @@ func MatchInputToSnippet(inputChannel chan input.InputEvent) {
 // get keyboard input or if we need to model the full keyboard to know the
 // case/state.
 func checkBufferForMatch() *Snippet {
+	log.Println(string(symbolBuffer))
 SnippetLoop:
 	for _, s := range allSnippets() {
-		log.Printf("checking %v against %v", string(s.Symbol), string(symbolBuffer))
 		if len(symbolBuffer) != len(s.Symbol) {
 			continue
 		}
 
-		for i, r := range s.Symbol {
+		for i, r := range s.SymbolBytes() {
 			if r != symbolBuffer[i] {
 				break SnippetLoop
 			}
-
-			// found it!
-			return &s
 		}
+
+		// found it!
+		return &s
 	}
 	return nil
 }
@@ -105,10 +97,8 @@ func pasteSnippet(s Snippet) error {
 	old, err := clipboard.ReadAll()
 	if err != nil {
 		// this may mean that there was nothing in the clipboard
-		log.Println("could not read from clipboard")
+		log.Printf("could not read from clipboard: %v", err.Error())
 	}
-
-	log.Printf("removed old string from keyboard: %v", old)
 
 	err = clipboard.WriteAll(s.Tmpl)
 	if err != nil {
@@ -117,7 +107,7 @@ func pasteSnippet(s Snippet) error {
 
 	// delete typed symbol
 	for i := 0; i < len(s.Symbol)+1; i++ {
-		keyTap("backspace")
+		backspace()
 	}
 
 	// paste snippet in
@@ -136,4 +126,8 @@ func pasteSnippet(s Snippet) error {
 // be worth leaving as is.
 func keyTap(tapKey string, args ...interface{}) {
 	robotgo.KeyTap(tapKey, args...)
+}
+
+func backspace() {
+	robotgo.KeyTap("backspace")
 }
