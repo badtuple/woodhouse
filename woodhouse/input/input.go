@@ -46,14 +46,14 @@ func checkRoot() error {
 }
 
 func ListenForInput() (chan InputEvent, error) {
-	devs, err := NewDevices()
+	devs, err := newDevices()
 	if err != nil {
 		return nil, err
 	}
 
 	log.Printf("%v devices found", len(devs))
 	for _, val := range devs {
-		log.Printf("	ID %v) %v", val.Id, val.Name)
+		log.Printf("	ID %v) %v", val.id, val.name)
 	}
 
 	// TODO: We're choosing the keyboard on my laptop
@@ -61,9 +61,9 @@ func ListenForInput() (chan InputEvent, error) {
 	// computer so we'll need to figure out how to find
 	// which is the one to use.
 	dev := devs[0]
-	log.Printf("using dev %v (%v)", dev.Name, dev.Id)
-	rd := NewKeyLogger(devs[0])
+	log.Printf("using dev %v (%v)", dev.name, dev.id)
+	rd := newKeyLogger(devs[0])
 
-	in, err := rd.Read()
+	in, err := rd.read()
 	return in, err
 }

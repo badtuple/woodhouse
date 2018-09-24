@@ -13,7 +13,6 @@ func main() {
 	}
 
 	for i := range inputChannel {
-
 		//listen only for new pressed key events
 		if i.IsKeyEvent() && i.IsPressedEvent() {
 			log.Print(i.KeyString())

@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-type InputDevice struct {
-	Id   int
-	Name string
+type inputDevice struct {
+	id   int
+	name string
 }
 
-func NewDevices() ([]*InputDevice, error) {
-	var ret []*InputDevice
+func newDevices() ([]*inputDevice, error) {
+	var ret []*inputDevice
 
 	if err := checkRoot(); err != nil {
 		return ret, err
@@ -31,14 +31,14 @@ func NewDevices() ([]*InputDevice, error) {
 	return ret, nil
 }
 
-func newInputDeviceReader(buff []byte, id int) *InputDevice {
+func newInputDeviceReader(buff []byte, id int) *inputDevice {
 	rd := bufio.NewReader(bytes.NewReader(buff))
 	rd.ReadLine()
 	dev, _, _ := rd.ReadLine()
 	splt := strings.Split(string(dev), "=")
 
-	return &InputDevice{
-		Id:   id,
-		Name: splt[1],
+	return &inputDevice{
+		id:   id,
+		name: splt[1],
 	}
 }

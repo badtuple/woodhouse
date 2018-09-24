@@ -7,17 +7,17 @@ import (
 	"os"
 )
 
-type KeyLogger struct {
-	dev *InputDevice
+type keyLogger struct {
+	dev *inputDevice
 }
 
-func NewKeyLogger(dev *InputDevice) *KeyLogger {
-	return &KeyLogger{
+func newKeyLogger(dev *inputDevice) *keyLogger {
+	return &keyLogger{
 		dev: dev,
 	}
 }
 
-func (t *KeyLogger) Read() (chan InputEvent, error) {
+func (t *keyLogger) read() (chan InputEvent, error) {
 	ret := make(chan InputEvent, 512)
 
 	if err := checkRoot(); err != nil {
@@ -25,7 +25,7 @@ func (t *KeyLogger) Read() (chan InputEvent, error) {
 		return ret, err
 	}
 
-	fd, err := os.Open(fmt.Sprintf(DEVICE_FILE, t.dev.Id))
+	fd, err := os.Open(fmt.Sprintf(DEVICE_FILE, t.dev.id))
 	if err != nil {
 		close(ret)
 		return ret, fmt.Errorf("Error opening device file:", err)
